@@ -1,0 +1,23 @@
+1. Mô hình: Siamese-Modulated Single-Stage Detector 
+2. Loss function: Normalized Gaussian Wasserstein Distance NWD
+3. Chỉ số cần tối ưu: ST-IOU (cấu trúc Spatio-Temporal Tubelet Linker với cơ chế ngưỡng trễ kép và bù chuyển động camera (CMC) triệt tiêu hoàn toàn các cảnh báo giả ngẫu nhiên, hàn gắn các khoảng gián đoạn do che khuất, giữ cho mẫu số của thể tích hợp luôn ở mức tối thiểu và nâng cao chỉ số ST-IoU một cách bền vững)
+4. Chiến lược huấn luyện
+
+a/ Sparse Lucas-Kanade Optical Flow -> biến đổi Affine thông qua thuật toán RANSAC.
+b/ Tracking: thuật toán ByteTrack kết hợp với đặc trưng hình ảnh
+c/ Hysteresis Tubelet State Machine: Một ống theo dõi mới khởi tạo từ các phát hiện ban đầu sẽ được gán nhãn trạng thái Thăm dò (Tentative). Trạng thái này chỉ được nâng cấp lên trạng thái Xác nhận (Confirmed) khi và chỉ khi ống duy trì được sự liên kết liên tục trong tối thiểu $N_{\text{enter}} = 5$ khung hình liên tiếp. Khi đã xác nhận, mốc thời gian bắt đầu $t_{\text{start}}$ được chốt lùi về đúng thời điểm khung hình đầu tiên của chuỗi, và các cảnh báo mới chính thức được kích hoạt gửi về hệ thống điều khiển. Nếu mục tiêu biến mất trong các khung hình tiếp theo (điểm số dưới $\tau_{\text{low}}$), ống chuyển sang trạng thái Tạm Mất Dấu (Lost). Bộ lọc Kalman tiếp tục duy trì quỹ đạo dự đoán không gian trong tối đa $N_{\text{exit}} = 15$ khung hình (tương đương 0.5 giây bay). Nếu mục tiêu xuất hiện trở lại trong khoảng thời gian này, ống lập tức được hàn gắn liền mạch; ngược lại, nếu vượt quá $N_{\text{exit}}$ khung hình, ống theo dõi sẽ chính thức đóng lại và ghi nhận mốc thời gian kết thúc $t_{\text{end}}$ tại khung hình phát hiện hợp lệ cuối cùng
+d/ Sau khi huấn luyện:  Định dạng đồ thị tính toán ONNX (Opset 13) và biên dịch sang TensorRT Engine (TensorRT 12.9.4) thông qua API C++ NvInfer
+    + chuẩn hóa lớp và hàm kích hoạt (Conv + BatchNorm + SiLU) thành một kernel duy nhất\
+    + lượng tử hóa TensorRT 8.4.1 kết hợp lượng tử hóa hỗn hợp INT8/FP16sử dụng phương pháp Post-Training Quantization (PTQ) với bộ hiệu chuẩn entropy đối xứng (IInt8EntropyCalibrator2) 
+e/ Thiết lập Zero-Copy Pinned Memory:
+    +  Luồng thu nhận hình ảnh sử dụng GStreamer với phần cứng giải mã tích hợp NVDEC (nvv4l2decoder)
+    + ghi trực tiếp dữ liệu hình ảnh vào vùng nhớ ánh xạ chung (cudaHostAllocMapped)
+
+5/ Chiến lược pretraining:
+    - Dữ liệu: VisDrone-DET, VisDrone-VID, UAVDT và Anti-UAV
+
+6/ Tăng cường dữ liệu:
+    - Tăng cường nhánh ảnh mẫu: Random Homography & Perspective Warping (30-85%); biến đổi màu sắc quang phổ, làm mờ chuyển động nhân tạo (Motion Blur) và tạo nhiễu sương mù
+    - Tăng cường nhánh khung hình tìm kiếm: Mosaic 4 ảnh kết hợp CutMix trên nền địa hình
+
+7. Kiểm thử:

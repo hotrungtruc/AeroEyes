@@ -1,0 +1,13 @@
+# AeroEyes runtime dependencies for NVIDIA Jetson Xavier NX.
+#
+# PyTorch 1.12.1 must be installed from the NVIDIA/JetPack-compatible wheel.
+# Do not replace it with the generic PyPI wheel: the generic wheel may not
+# provide the CUDA runtime required by Jetson.
+numpy==1.23.5
+opencv-python-headless==4.6.0.66
+Pillow==9.2.0
+PyYAML==6.0
+tqdm==4.64.1
+
+# Install PyTorch 1.12.1 separately after activating the environment:
+#   python -m pip install <JetPack-5-compatible-torch-1.12.1-wheel>
