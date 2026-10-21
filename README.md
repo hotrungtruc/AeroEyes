@@ -256,6 +256,28 @@ luyện và kiểm thử nội bộ. Các thư mục `public_test/` và `private
 để kiểm tra khả năng tổng quát hóa trên những video không dùng trong quá trình
 phát triển.
 
+### Minh họa dữ liệu
+
+Các ảnh dưới đây là bản thu nhỏ dùng cho tài liệu; dữ liệu gốc vẫn được giữ
+ngoài Git vì kích thước lớn. Chúng minh họa ảnh tham chiếu từ tập train và các
+target trong public/private test:
+
+| Tập dữ liệu | Ví dụ |
+| --- | --- |
+| Train - Backpack | ![Train Backpack](./docs/assets/train_backpack.jpg) |
+| Train - Laptop | ![Train Laptop](./docs/assets/train_laptop.jpg) |
+| Public test - BlackBox | ![Public BlackBox](./docs/assets/public_blackbox.jpg) |
+| Private test - Helmet | ![Private Helmet](./docs/assets/private_helmet.jpg) |
+
+Một số clip ngắn đã được giảm kích thước và cắt từ video mẫu để minh họa luồng
+UAV. Có thể mở trực tiếp trên GitHub:
+
+- [Train - Backpack preview](./docs/assets/train_backpack_preview.mp4)
+- [Public test - BlackBox preview](./docs/assets/public_blackbox_preview.mp4)
+
+Các asset minh họa không thay thế dataset huấn luyện và không chứa toàn bộ
+annotation/video gốc.
+
 Tên mục tiêu hiện có trong dữ liệu gồm các vật thể như ba lô, áo khoác, máy tính
 xách tay, phao cứu sinh, điện thoại, người, chai nước, mũ bảo hiểm, thẻ căn cước,
 xe máy, ví, hộp và áo phao. Danh sách này là ví dụ của tập dữ liệu hiện tại; hệ
